@@ -2,265 +2,208 @@
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
+#include<string>
 #include <iostream>
 #include <algorithm>
 #include <vector>
 #include <map>  
-const int rowsPerPar=4;//Ã¿¶ÎµÄ×î´óĞĞÊı¡¢
-const int wordsPerRow=15;//Ã¿ĞĞµ¥´ÊÊı¡¢
-const int wordsmax=300;//×î´óµ¥´ÊÊı
-const int wordslength=7;//µ¥´Ê³¤¶È
+const int rowsPerPar = 4;//æ¯æ®µçš„æœ€å¤§è¡Œæ•°ã€
+const int wordsPerRow = 15;//æ¯è¡Œå•è¯æ•°ã€
+const int wordsmax = 300;//æœ€å¤§å•è¯æ•°
+const int wordslength = 7;//å•è¯é•¿åº¦
 
 using namespace std;
-int num=0,i,lines=0,validnum=0;
- 
-class Paper{//¶ÔÎÄ¼şµÄÎÄÕÂÀà 
+int num = 0, i, lines = 0, validnum = 0;
+
+class Paper {//å¯¹æ–‡ä»¶çš„æ–‡ç« ç±» 
 public:
-	void fread(char * filename);
-	void fwrite(char * filename);
+	void fread(char* filename);
+	void fwrite(char* filename);
 private:
-	map<string,int> words;
+	map<string, int> words;
 };
 
-class Words{ //µ¥´ÊÀà
-	public:
-		string word; //µ¥´Ê
-		int cnt; //ÊıÁ¿
+class Words { //å•è¯ç±»
+public:
+	string word; //å•è¯
+	int cnt; //æ•°é‡
 };
 
-int cmpare(const pair<string, int>& x, const pair<string, int>& y)  {  //value±È½Ï 
-    return x.second > y.second;   
-}  
-   
-void sort(map<string, int>& tMap,vector<pair<string, int> >& wordVector)  {  //´ÊÆµÅÅĞò 
-    for (map<string, int>::iterator curr = tMap.begin(); curr != tMap.end(); curr++)   
-        wordVector.push_back(make_pair(curr->first, curr->second));    
-   
-    sort(wordVector.begin(), wordVector.end(), cmpare);  
-}  
-
-bool isSeparator(char c){//ÅĞ¶Ï·Ö¸ô·û£ºËùÓĞ·ÇÊı×ÖÇÒ·Ç×ÖÄ¸ 
-	return !(isupper(c)||islower(c)||isdigit(c));
+int cmpare(const pair<string, int>& x, const pair<string, int>& y) {  //valueæ¯”è¾ƒ 
+	return x.second > y.second;
 }
 
-int getCharNum(Words *words) {//´Óµ¥´ÊÖĞÍ³¼Æ×Ö·û 
-	ifstream fin,in;
+void sort(map<string, int>& tMap, vector<pair<string, int> >& tVector) {  //è¯é¢‘æ’åº 
+	for (map<string, int>::iterator curr = tMap.begin(); curr != tMap.end(); curr++)
+		tVector.push_back(make_pair(curr->first, curr->second));
+
+	sort(tVector.begin(), tVector.end(), cmpare);
+}
+
+bool isSeparator(char c) {//åˆ¤æ–­åˆ†éš”ç¬¦ï¼šæ‰€æœ‰éæ•°å­—ä¸”éå­—æ¯ 
+	return !(isupper(c) || islower(c) || isdigit(c));
+}
+
+int getCharNum(Words* words) {//ä»å•è¯ä¸­ç»Ÿè®¡å­—ç¬¦ 
+	ifstream fin, in;
 	ofstream fout;
-	fin.open("input.txt",ios::in | ios::out | ios::binary);//´ò¿ªÎÄ¼ş
-	fout.open("output.txt",ios::in | ios::out | ios::binary);//Ğ´ÈëÎÄ¼ş 
-	if(!fin) {
-		cout<<"ÎÄ¼ş´ò¿ª´íÎó£¡"<<endl;
+	fin.open("input.txt", ios::in | ios::out | ios::binary);//æ‰“å¼€æ–‡ä»¶
+	fout.open("output.txt", ios::in | ios::out | ios::binary);//å†™å…¥æ–‡ä»¶ 
+	if (!fin) {
+		cout << "æ–‡ä»¶æ‰“å¼€é”™è¯¯ï¼" << endl;
 		return -1;
 	}
-	int num=0,i,charnum=0,lines=0;
-	char c;
-	in.open("input.txt",ios::in);
-	while(!in.eof())
-	{	 
-	if(c!='\n') charnum++;
-	  else
-	   charnum+=0;
-		in>>c;
+	int num = 0, i, charnum = 0, lines = 0;
+	char c=' ';
+	in.open("input.txt", ios::in);
+	while (!in.eof())
+	{
+		if (c != '\n') charnum++;
+		else
+			charnum += 0;
+		in >> c;
 	}
 	in.close();
 	string word;
-		while(fin) {
-			fin>>word; //´ÓÎÄ¼ş¶Áµ¥´Ê
-			if(!fin) {
-				break;//ÎÄ¼ş½áÎ² 
-			}
-			bool flag = false;
-			for(i=0;i<num;i++) {
-				if(word==words[i].word) { //Ã¿´Î´ÓÊı×éÖĞÈç¹ûÕÒµ½¸Ãµ¥´Ê
-					flag=true;//µ¥´Ê±ê¼ÇÎª"ÏàÍ¬" 
-					words[i].cnt++; //¸Ãµ¥´ÊµÄÊıÁ¿¼ÓÒ» 
-					break;
-				}
-			}
-			
-			if(!flag) { //µ¥´Ê±ê¼ÇÎª"²»Í¬" 
-				words[i].cnt=1; //ĞÂµÄµ¥´Ê¼ÆÊıÎª1
-				words[i].word=word; //±£´æ¸Ãµ¥´Ê
-				num++; //µ¥´ÊÖÖÀà¼ÓÒ» 
+	while (fin) {
+		fin >> word; //ä»æ–‡ä»¶è¯»å•è¯
+		if (!fin) {
+			break;//æ–‡ä»¶ç»“å°¾ 
+		}
+		bool flag = false;
+		for (i = 0; i < num; i++) {
+			if (word == words[i].word) { //æ¯æ¬¡ä»æ•°ç»„ä¸­å¦‚æœæ‰¾åˆ°è¯¥å•è¯
+				flag = true;//å•è¯æ ‡è®°ä¸º"ç›¸åŒ" 
+				words[i].cnt++; //è¯¥å•è¯çš„æ•°é‡åŠ ä¸€ 
+				break;
 			}
 		}
-	fout<<"characters:"<<charnum-1<<endl; 
-	fin.close(); //¹Ø±ÕÎÄ¼ş
-	fout.close();//¹Ø±ÕÎÄ¼ş 
-	return charnum; //·µ»Ø×Ö·ûÊı
+
+		if (!flag) { //å•è¯æ ‡è®°ä¸º"ä¸åŒ" 
+			words[i].cnt = 1; //æ–°çš„å•è¯è®¡æ•°ä¸º1
+			words[i].word = word; //ä¿å­˜è¯¥å•è¯
+			num++; //å•è¯ç§ç±»åŠ ä¸€ 
+		}
+	}
+	fout << "characters:" << charnum - 1 << endl;
+	fin.close(); //å…³é—­æ–‡ä»¶
+	fout.close();//å…³é—­æ–‡ä»¶ 
+	return charnum; //è¿”å›å­—ç¬¦æ•°
 }
- 
-bool isValidWord(string str){//ÅĞ¶ÏÓĞĞ§µ¥´Ê 
-	if (str.length()<4)
+
+bool isValidWord(string str) {//åˆ¤æ–­æœ‰æ•ˆå•è¯ 
+	if (str.length() < 4)
 		return false;
 	char c[10000];
-	strcpy(c,str.c_str());//×ªÎª×Ö·ûÊı×é 
-	for (int i=0;i<4;i++){
-		if((!(isupper(c[i])||islower(c[i])))){
-					
+	//str	(c, str.c_str());//è½¬ä¸ºå­—ç¬¦æ•°ç»„ 
+	int length = str.copy(c, 9999);
+	c[length] = '\0';
+	for (int i = 0; i < 4; i++) {
+		if ((!(isupper(c[i]) || islower(c[i])))) {
+
 			return false;
-		}	
+		}
 	}
 }
 
-int CountLines(char *filename){//»ñÈ¡ĞĞÊı 
+int CountLines(string filename) {//è·å–è¡Œæ•° 
 	ifstream ReadFile;
-	int n=0;
-	char line[wordsmax/wordsPerRow];
+	int n = 0;
+	char line[wordsmax / wordsPerRow];
 	string temp;
-	ReadFile.open(filename,ios::in);//ÓÃÖ»¶ÁµÄ·½Ê½¶ÁÈ¡ÎÄ¼ş
-	if(ReadFile.fail())//ÎÄ¼ş´ò¿ªÊ§°Ü:·µ»Ø0
+	ReadFile.open(filename, ios::in);//ç”¨åªè¯»çš„æ–¹å¼è¯»å–æ–‡ä»¶
+	if (ReadFile.fail())//æ–‡ä»¶æ‰“å¼€å¤±è´¥:è¿”å›0
 	{
-	   return 0;
+		return 0;
 	}
-	else//ÎÄ¼ş´æÔÚ
+	else//æ–‡ä»¶å­˜åœ¨
 	{
-	while(getline(ReadFile,temp)!=NULL)
-	{
-	 
-	   n++;
-	}
-	    return n;
+		while (!getline(ReadFile, temp).eof())
+		{
+
+			n++;
+		}
+		return n;
 	}
 	ReadFile.close();
 }
 
-void createPaperAuto(){//Ëæ»úÎÄÕÂÉú³ÉÆ÷ 
 
-	int rcnt=0,wcnt=0,wcntPerRow=0,lines=1,charNum=0;//ĞĞÊı¼ÆÊıÆ÷£¬µ¥´ÊÊı¼ÆÊıÆ÷ ,ĞĞÊı ,×Ö·ûÊı 
-	ofstream fout1,fout2;//Ğ´ÎÄ¼ş 
-	fout1.open("input_random.txt");
-	fout2.open("output_random.txt");
-	int n=rand()%(3*wordsmax/4)+wordsmax/4;//µ¥´ÊÏŞÖÆ (k/4~k),Ê¹ÎÄÕÂÄÚÈİ¾¡Á¿±¥Âú 
-	cout<<"µÃµ½"<<n<<"¸ö³õÊ¼µ¥´ÊµÄÎÄÕÂ:"<<endl;
-	cout<<"    ";//Ê×ĞĞËõ½øËÄ¸ö×Ö·û	
-	fout1<<"        ";		
-	while(n--)                              //Éú³Éµ¥´Ê 
-	{
-		int k=rand()%wordslength+4;         //Ã¿¸öµ¥´ÊµÄ³¤¶È 
-		for(int i=1;i<=k;i++)
-		{
-			int x;
-			x=rand()%('~'-'!'+1)+'!';//Éú³É´Ó'!'µ½'~'µÄ×Ö·û£¬¶ÔÓ¦ASCIIÂë´Ó33~127£¬ÆäËü¼üÅÌÉÏÃ»ÓĞ 
-			charNum++;
-			printf("%c",x);
-			fout1<<(char)x;				
-		}
-		printf("   ");//Ò»¸öµ¥´ÊÉú³ÉºóµÄ¼ä¸ô
-		fout1<<"   ";
-		if (wcntPerRow==wordsPerRow){ 
-			cout<<endl; 
-			fout1<<endl;
-			rcnt++;//ĞĞ¼ÆÊıÆ÷+1
-			lines++;//ĞĞÊı+1 
-			if (rcnt>=rand()%rowsPerPar+1){//Ã¿¶Î×î´órowsPerParĞĞ£¬×îÉÙ1ĞĞ
-				cout<<"    ";//ĞÂµÄ¶ÎÂäÊ×ĞĞËõ½ø4¸ö×Ö·û 
-				fout1<<"        ";
-				rcnt=0;//ÏÂÒ»¶ÎÖØĞÂ¼ÆÊı 
-			} 
-			wcntPerRow=0;//ÏÂÒ»ĞĞÖØĞÂ¼ÆÊı 
-		}						 
-		wcnt++;//µ¥´Ê¼ÆÊıÆ÷
-		wcntPerRow++;//Ã¿ĞĞµ¥´Ê¼ÆÊıÆ÷ 
-				
-	}		
-	cout<<endl<<endl<<"ÎÄÕÂĞ´ÈëÍê³É£¡"<<endl;
-	fout2<<"characters:"<<charNum<<endl; 
-	fout2<<"words:"<<wcnt<<endl;	//³õ²½Í³¼Æ£¬Ö®ºó»á¸ÄÎªÍ³¼ÆÓĞĞ§µ¥´Ê 
-	fout2<<"lines:"<<lines<<endl;
-	fout1.close();
-	fout2.close();
-} 
-
-void countCharNum(){//Êä³ö×Ö·û¸öÊı 
-	Words words[wordsmax] = {"",0}; //µ¥´Ê¶ÔÏó±äÁ¿¶¨ÒåÓë³õÊ¼»¯
+void countCharNum() {//è¾“å‡ºå­—ç¬¦ä¸ªæ•° 
+	Words words[wordsmax] = { "",0 }; //å•è¯å¯¹è±¡å˜é‡å®šä¹‰ä¸åˆå§‹åŒ–
 	ofstream fout;
 	fout.open("output.txt");
-	int n=getCharNum(words); //»ñÈ¡×Ö·ûÊı 
-	fout<<"characters:"<<n<<endl;
+	int n = getCharNum(words); //è·å–å­—ç¬¦æ•° 
+	fout << "characters:" << n << endl;
 	fout.close();
-} 
+}
 
-void Paper::fread(char * filename){//¶ÁÎÄ¼ş 
-	ifstream ifs(filename);//´ò¿ªÎÄ¼şÁ÷
-	if(ifs.fail())
+void Paper::fread(char* filename) {//è¯»æ–‡ä»¶ 
+	ifstream ifs(filename);//æ‰“å¼€æ–‡ä»¶æµ
+	if (ifs.fail())
 	{
-		cout <<"ifstream open file error"<<endl;
+		cout << "ifstream open file error" << endl;
 		return;
 	}
 	string word;
-	while( ifs >> word)
+	while (ifs >> word)
 	{
-		if(isValidWord(word))//Èç¹ûÎªÓĞĞ§µ¥´Ê 
-		words[word]++;
+		if (isValidWord(word))//å¦‚æœä¸ºæœ‰æ•ˆå•è¯ 
+			words[word]++;
 	}
- 	ifs.close();
+	ifs.close();
 }
- 
-void Paper::fwrite(char * filename){//Ğ´ÎÄ¼ş 
-	int wcnt=0,wtype=0;//µ¥´ÊÊıÁ¿ºÍµ¥´ÊÖÖÀà 
+
+void Paper::fwrite(char* filename) {//å†™æ–‡ä»¶ 
+	int wcnt = 0;//å•è¯æ•°é‡ 
 	ifstream fin;
 	ofstream fout;
-	int s=CountLines("input.txt");
-	fin.open("input.txt",ios::app|ios::out);//´ò¿ªÎÄ¼ş 
-	fout.open("output.txt",ios::app|ios::out);
-	if(fin.fail())
+	int s = CountLines("input.txt");
+	fin.open("input.txt", ios::app | ios::out);//æ‰“å¼€æ–‡ä»¶ 
+	fout.open("output.txt", ios::app | ios::out);
+	if (fin.fail())
 	{
-		cout <<"ifstream open file error"<<endl;
-		
+		cout << "ifstream open file error" << endl;
+
 	}
-    map<string, int> tMap;  
-    string word; 
-    while (fin >> word)  
-    {  	
-		transform(word.begin(),word.end(),word.begin(),::tolower);
-	    if(isValidWord(word)){
-	        pair<map<string,int>::iterator,bool> ret = tMap.insert(make_pair(word, 1));  
-	        if (!ret.second)  
-	            ++ret.first->second; 
-				wcnt++;
-		} 
-    }   
-    vector<pair<string,int> > tVector; //×îºóÁ½¸ö>>Òª¸ô¿ª 
-    sort(tMap,tVector);
-    fout<<"lines:"<<s<<endl;
-    fout<<"words:"<<wcnt<<endl;
-    if (tVector.size()>10){
-		fout<<"ÆµÂÊ×î¸ßµÄ10¸öµ¥´ÊÈçÏÂ:"<<endl;
-    	for(int i=0;i<10;i++)
-    		fout<<tVector[i].first<<": "<<tVector[i].second<<endl;
+	map<string, int> tMap;
+	string word;
+	while (fin >> word)
+	{
+		transform(word.begin(), word.end(), word.begin(), ::tolower);
+		if (isValidWord(word)) {
+			pair<map<string, int>::iterator, bool> ret = tMap.insert(make_pair(word, 1));
+			if (!ret.second)
+				++ret.first->second;
+			wcnt++;
+		}
 	}
-    else{
-    	fout<<"ÆµÂÊ×î¸ßµÄ"<<tVector.size()<<"¸öµ¥´ÊÈçÏÂ:"<<endl;
-		for(int i=0;i<tVector.size();i++)  
-	    	fout<<tVector[i].first<<": "<<tVector[i].second<<endl;
+	vector<pair<string, int> > tVector;
+	sort(tMap, tVector);
+	fout << "lines:" << s << endl;
+	fout << "words:" << wcnt << endl;
+	if (tVector.size() > 10) {
+		fout << "é¢‘ç‡æœ€é«˜çš„10ä¸ªå•è¯å¦‚ä¸‹:" << endl;
+		for (int i = 0; i < 10; i++)
+			fout << tVector[i].first << ": " << tVector[i].second << endl;
+	}
+	else {
+		fout << "é¢‘ç‡æœ€é«˜çš„" << tVector.size() << "ä¸ªå•è¯å¦‚ä¸‹:" << endl;
+		for (int i = 0; i < tVector.size(); i++)
+			fout << tVector[i].first << ": " << tVector[i].second << endl;
 	}
 	fin.close();
 	fout.close();
 }
 
-int main(int argc,char **argv){  
-	if(argc!=3){
-		cout <<"ÊäÈëinput.txt/output.txt"<<endl;
+int main(int argc, char** argv) {
+	if (argc != 3) {
+		cout << "è¾“å…¥input.txt/output.txt" << endl;
 	}
 	countCharNum();
 	Paper p;
 	p.fread(argv[1]);//input.txt
 	p.fwrite(argv[2]);//output.txt
-	cout<<"ÇëÔÚoutput.txt²é¿´½á¹û£¡";
+	cout << "è¯·åœ¨output.txtæŸ¥çœ‹ç»“æœï¼";
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
